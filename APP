@@ -1,0 +1,635 @@
+package com.example.mi_calculadora
+
+import android.os.Bundle
+import android.view.View
+import android.view.View.OnClickListener
+import android.widget.Button
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.example.mi_calculadora.databinding.ActivityMainBinding
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.tan
+
+class tivity : AppCompatActivity(), OnClickListener {
+    private lateinit var binding: ActivityMainBinding
+    private var operando1: Double = 0.0
+    private var operando2: Double = 0.0
+    private var operacionPendiente: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Configurar listeners para todos los botones
+        binding.btnAC.setOnClickListener(this)
+        binding.btnMasmenos.setOnClickListener(this)
+        binding.btnPorcentaje.setOnClickListener(this)
+        binding.btnDivision?.setOnClickListener(this)
+        binding.btnRaizCuadrada?.setOnClickListener(this)
+        binding.btn7.setOnClickListener(this)
+        binding.btn8.setOnClickListener(this)
+        binding.btn9.setOnClickListener(this)
+        binding.btnMultiplicacion?.setOnClickListener(this)
+        binding.btnSen?.setOnClickListener(this)
+        binding.btn4.setOnClickListener(this)
+        binding.btn5.setOnClickListener(this)
+        binding.btn6.setOnClickListener(this)
+        binding.btnResta?.setOnClickListener(this)
+        binding.btnCos?.setOnClickListener(this)
+        binding.btn1.setOnClickListener(this)
+        binding.btn2.setOnClickListener(this)
+        binding.btn3.setOnClickListener(this)
+        binding.btnSuma?.setOnClickListener(this)
+        binding.btnTan?.setOnClickListener(this)
+        binding.btn0.setOnClickListener(this)
+        binding.btnComa?.setOnClickListener(this)
+        binding.btnIgual?.setOnClickListener(this)
+
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            binding.btnAC.id -> limpiarCalculadora()
+            binding.btnMasmenos.id -> cambiarSigno()
+            binding.btnPorcentaje.id -> calcularPorcentaje()
+            binding.btnDivision?.id -> prepararOperacion("/")
+            binding.btnMultiplicacion?.id -> prepararOperacion("*")
+            binding.btnResta?.id -> prepararOperacion("-")
+            binding.btnSuma?.id -> prepararOperacion("+")
+            binding.btnRaizCuadrada?.id -> prepararOperacion("√")
+            binding.btnSen?.id -> prepararOperacion("Sin")
+            binding.btnCos?.id -> prepararOperacion("Cos")
+            binding.btnTan?.id -> prepararOperacion("Tan")
+            binding.btnIgual.id -> realizarOperacion()
+            binding.btnComa.id -> agregarDecimal()
+            else -> {
+                val textoBoton = (v as? Button)?.text?.toString() ?: ""
+                agregarNumero(textoBoton)
+            }
+        }
+    }
+
+    private fun limpiarCalculadora() {
+        binding.textoContador.text = "0"
+        operando1 = 0.0
+        operando2 = 0.0
+        operacionPendiente = ""
+    }
+
+    private fun cambiarSigno() {
+        if(binding.textoContador.text.toString().toDouble() != 0.0) {
+            val valorActual = binding.textoContador.text.toString().toDouble()
+            binding.textoContador.text = (valorActual * -1).toString()
+        }
+    }
+
+    private fun calcularPorcentaje() {
+        val valorActual = binding.textoContador.text.toString().toDouble()
+        binding.textoContador.text = (valorActual / 100).toString()
+    }
+
+    private fun prepararOperacion(operacion: String) {
+        operando1 = binding.textoContador.text.toString().toDouble()
+        operacionPendiente = operacion
+        binding.textoContador.text = "0"
+    }
+
+    private fun realizarOperacion() {
+        if (operacionPendiente.isNotEmpty()) {
+            operando2 = binding.textoContador.text.toString().toDouble()
+            val resultado = when (operacionPendiente) {
+                "+" -> operando1 + operando2
+                "-" -> operando1 - operando2
+                "*" -> operando1 * operando2
+                "/" -> if (operando2 != 0.0) operando1 / operando2 else Double.NaN
+                "√" -> {
+                    if (operando2 >= 0) Math.sqrt(operando2) else Double.NaN
+                }
+                "Sin" -> {
+                sin(operando1)
+            }
+                "Cos" -> {
+                cos(operando1)
+            }
+                "Tan" -> {
+                tan(operando1)
+            }
+                else -> operando2
+            }
+
+            binding.textoContador.text = if (resultado.isNaN()) "Error" else resultado.toString()
+            operando1 = resultado
+            operacionPendiente = ""
+        }
+    }
+
+    private fun agregarDecimal() {
+        if (!binding.textoContador.text.contains(".")) {
+            binding.textoContador.text = "${binding.textoContador.text}."
+        }
+    }
+
+    private fun agregarNumero(numero: String) {
+        if (binding.textoContador.text == "0") {
+            binding.textoContador.text = numero
+        } else {
+            binding.textoContador.text = "${binding.textoContador.text}$numero"
+        }
+    }
+}
+
+
+----LAYOUT---
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textoContador"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.33"
+        android:gravity="center"
+        android:text="0"
+        android:textSize="40sp"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.33"
+        android:columnCount="4"
+        android:rowCount="4"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnAC"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="AC"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btnMasmenos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="+/-"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+        <Button
+            android:id="@+id/btnPorcentaje"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="%"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btnDivision"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="÷"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btn7"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="7"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn8"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="8"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+        <Button
+            android:id="@+id/btn9"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="9"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary"/>
+        <Button
+            android:id="@+id/btnMultiplicacion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="x"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant"/>
+
+
+        <Button
+            android:id="@+id/btn4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="4"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary"/>
+
+        <Button
+            android:id="@+id/btn5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="5"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary"/>
+        <Button
+            android:id="@+id/btn6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="6"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+        <Button
+            android:id="@+id/btnResta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="-"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant"/>
+
+        <Button
+            android:id="@+id/btn1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="1"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary"/>
+
+        <Button
+            android:id="@+id/btn2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="2"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+        <Button
+            android:id="@+id/btn3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="3"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+        <Button
+            android:id="@+id/btnSuma"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:text="+"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant"/>
+
+
+
+
+    </GridLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+
+
+
+        <Button
+            android:id="@+id/btn0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:text="0"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btnComa"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:text=","
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+        <Button
+            android:id="@+id/btnIgual"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:text="="
+            android:layout_columnWeight="2"
+            android:layout_rowWeight="1"
+            android:textSize="24sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+
+
+
+    </LinearLayout>
+</LinearLayout>
+
+
+
+---LAYOUT LAND---
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textoContador"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.16"
+        android:gravity="center"
+        android:text="0"
+        android:textSize="45sp"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight = "0.66"
+        android:rowCount = "4"
+        android:columnCount ="4"
+        android:orientation = "horizontal">
+
+        <Button
+            android:id="@+id/btnAC"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="AC"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btnMasmenos"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="+/-"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btnPorcentaje"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="%"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btnRaizCuadrada"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="√"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btn7"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="7"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn8"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="8"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn9"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="9"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btnSen"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="Sen"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btn4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="4"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn5"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="5"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn6"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="6"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btnCos"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="Cos"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+
+        <Button
+            android:id="@+id/btn1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="1"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="2"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btn3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="3"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary" />
+
+        <Button
+            android:id="@+id/btnTan"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="0.2"
+            android:layout_columnWeight="0.2"
+            android:layout_margin="4dp"
+            android:text="Tan"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant" />
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.13"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <Button
+            android:id="@+id/btn0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:layout_rowWeight="0.33"
+            android:layout_columnWeight="1"
+            android:layout_margin="0dp"
+            android:text="0"
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary"/>
+
+        <Button
+            android:id="@+id/btnComa"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:layout_rowWeight="0.33"
+            android:layout_columnWeight="1"
+            android:layout_margin="0dp"
+            android:text=","
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary"/>
+
+        <Button
+            android:id="@+id/btnIgual"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:layout_rowWeight="0.33"
+            android:layout_columnWeight="1"
+            android:layout_margin="0dp"
+            android:text="="
+            android:textSize="30sp"
+            android:backgroundTint="@color/design_default_color_secondary_variant"/>
+
+
+    </LinearLayout>
+</LinearLayout>
